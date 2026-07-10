@@ -1,15 +1,13 @@
 "use client";
 
-import { CLIENT_ID } from "../lib/deriv";
+import { CLIENT_ID, REDIRECT_URI } from "../lib/deriv";
 
 export default function LoginButton() {
   const login = () => {
-    const redirectUri = "http://localhost:3000/auth/callback";
-
     const url =
       `https://oauth.deriv.com/oauth2/authorize` +
       `?client_id=${CLIENT_ID}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
       `&response_type=code`;
 
     window.location.href = url;
