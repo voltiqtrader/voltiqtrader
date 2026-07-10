@@ -1,46 +1,52 @@
 "use client";
+
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 
 export default function CallbackPage() {
-  const [code, setCode] = useState("");
-  const [state, setState] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("Authorizing...");
+  const [response, setResponse] = useState<any>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    async function authorize() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
 
-    setCode(params.get("code") || "");
-    setState(params.get("state") || "");
-    setError(params.get("error") || "");
+      if (!code) {
+        setMessage("No authorization code received.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/auth/callback?code=${code}`);
+        const data = await res.json();
+
+        setResponse(data);
+        setMessage("Authorization successful!");
+      } catch (error) {
+        console.error(error);
+        setMessage("Authorization failed.");
+      }
+    }
+
+    authorize();
   }, []);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-      <div className="bg-slate-900 p-8 rounded-2xl w-full max-w-2xl">
+      <div className="bg-slate-900 p-8 rounded-2xl max-w-2xl w-full">
         <h1 className="text-3xl font-bold text-cyan-400 mb-6">
-          Deriv OAuth Callback
+          Connecting to Deriv...
         </h1>
 
-        <p className="mb-4">
-          <strong>Authorization Code:</strong>
-        </p>
-        <p className="break-all text-green-400">
-          {code || "Waiting..."}
-        </p>
+        <p className="mb-6">{message}</p>
 
-        <p className="mt-6">
-          <strong>State:</strong>
-        </p>
-        <p>{state || "None"}</p>
-
-        <p className="mt-6">
-          <strong>Error:</strong>
-        </p>
-        <p className="text-red-400">
-          {error || "None"}
-        </p>
+        {response && (
+          <pre className="bg-slate-800 p-4 rounded-xl overflow-auto text-green-400">
+            {JSON.stringify(response, null, 2)}
+          </pre>
+        )}
       </div>
     </main>
   );

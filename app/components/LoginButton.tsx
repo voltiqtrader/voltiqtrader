@@ -1,14 +1,29 @@
 "use client";
 
-import { CLIENT_ID, REDIRECT_URI } from "../lib/deriv";
+import { generateChallenge } from "pkce-challenge";
+import { CLIENT_ID, REDIRECT_URI, SCOPES } from "../lib/deriv";
 
 export default function LoginButton() {
-  const login = () => {
+  const login = async () => {
+    // Generate PKCE values
+    const { code_verifier, code_challenge } = await generateChallenge();
+
+    // Save verifier for later when exchanging the code for a token
+    sessionStorage.setItem("code_verifier", code_verifier);
+
+    // Create a random state value
+    const state = crypto.randomUUID();
+    sessionStorage.setItem("oauth_state", state);
+
     const url =
-      `https://oauth.deriv.com/oauth2/authorize` +
+      `https://auth.deriv.com/oauth2/auth` +
       `?client_id=${CLIENT_ID}` +
       `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-      `&response_type=code`;
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(SCOPES)}` +
+      `&state=${state}` +
+      `&code_challenge=${code_challenge}` +
+      `&code_challenge_method=S256`;
 
     window.location.href = url;
   };
