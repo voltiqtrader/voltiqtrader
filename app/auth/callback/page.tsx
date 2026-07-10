@@ -1,13 +1,19 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CallbackPage() {
-  const searchParams = useSearchParams();
+  const [code, setCode] = useState("");
+  const [state, setState] = useState("");
+  const [error, setError] = useState("");
 
-  const code = searchParams.get("code");
-  const state = searchParams.get("state");
-  const error = searchParams.get("error");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    setCode(params.get("code") || "");
+    setState(params.get("state") || "");
+    setError(params.get("error") || "");
+  }, []);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
@@ -16,26 +22,24 @@ export default function CallbackPage() {
           Deriv OAuth Callback
         </h1>
 
-        <div className="space-y-4">
-          <div>
-            <p className="font-semibold">Authorization Code</p>
-            <p className="break-all text-green-400">
-              {code || "No code received"}
-            </p>
-          </div>
+        <p className="mb-4">
+          <strong>Authorization Code:</strong>
+        </p>
+        <p className="break-all text-green-400">
+          {code || "Waiting..."}
+        </p>
 
-          <div>
-            <p className="font-semibold">State</p>
-            <p>{state || "No state received"}</p>
-          </div>
+        <p className="mt-6">
+          <strong>State:</strong>
+        </p>
+        <p>{state || "None"}</p>
 
-          <div>
-            <p className="font-semibold">Error</p>
-            <p className="text-red-400">
-              {error || "None"}
-            </p>
-          </div>
-        </div>
+        <p className="mt-6">
+          <strong>Error:</strong>
+        </p>
+        <p className="text-red-400">
+          {error || "None"}
+        </p>
       </div>
     </main>
   );
