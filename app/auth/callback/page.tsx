@@ -17,10 +17,26 @@ export default function CallbackPage() {
         setMessage("No authorization code received.");
         return;
       }
+      const codeVerifier = sessionStorage.getItem("code_verifier");
+
+if (!codeVerifier) {
+  setMessage("Missing PKCE code verifier.");
+  return;
+}
 
       try {
-        const res = await fetch(`/api/auth/callback?code=${code}`);
-        const data = await res.json();
+        const res = await fetch("/api/auth/callback", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    code,
+    codeVerifier,
+  }),
+});
+
+const data = await res.json();
 
         setResponse(data);
         setMessage("Authorization successful!");
@@ -36,9 +52,9 @@ export default function CallbackPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
       <div className="bg-slate-900 p-8 rounded-2xl max-w-2xl w-full">
-        <h1 className="text-3xl font-bold text-cyan-400 mb-6">
-          Connecting to Deriv...
-        </h1>
+       <h1 className="text-3xl font-bold text-red-500 mb-6">
+  THIS IS THE NEW CALLBACK PAGE
+</h1>
 
         <p className="mb-6">{message}</p>
 
