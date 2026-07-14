@@ -1,30 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
+import { CLIENT_ID, REDIRECT_URI } from "@/app/lib/deriv";
 
 export async function POST(request: NextRequest) {
   try {
     const { code, codeVerifier } = await request.json();
 
-    if (!code || !codeVerifier) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Missing code or codeVerifier",
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Received authorization data.",
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: CLIENT_ID,
       code,
-      codeVerifier,
+      code_verifier: codeVerifier,
+      redirect_uri: REDIRECT_URI,
+    });
+
+    const response = await fetch("https://auth.deriv.com/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+
+    const data = await response.json();
+
+    return NextResponse.json(data, {
+      status: response.status,
     });
   } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       {
         success: false,
-        error: "Invalid request",
+        error: "Token exchange failed",
       },
       { status: 500 }
     );
