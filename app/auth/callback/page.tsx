@@ -38,8 +38,27 @@ if (!codeVerifier) {
 
 const data = await res.json();
 
-        setResponse(data);
-        setMessage("Authorization successful!");
+if (data.access_token) {
+  // Save the token
+  sessionStorage.setItem(
+    "deriv_access_token",
+    data.access_token
+  );
+
+  // Save expiration time (optional)
+  sessionStorage.setItem(
+    "deriv_expires_in",
+    data.expires_in.toString()
+  );
+
+  // Redirect to dashboard
+  window.location.href = "/dashboard";
+
+  return;
+}
+
+setResponse(data);
+setMessage("Authorization successful!");
       } catch (error) {
         console.error(error);
         setMessage("Authorization failed.");
